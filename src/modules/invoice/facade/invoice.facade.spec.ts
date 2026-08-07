@@ -1,6 +1,7 @@
 import { Sequelize } from "sequelize-typescript";
 import InvoiceModel from "../repository/invoice.model";
 import InvoiceFacadeFactory from "../factory/invoice.facade.factory";
+import { InvoiceItemsModel } from "../repository/invoice-items.model";
 
 describe("InvoiceFacade", () => {
   let sequelize: Sequelize;
@@ -13,7 +14,7 @@ describe("InvoiceFacade", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([InvoiceModel]);
+    await sequelize.addModels([InvoiceModel, InvoiceItemsModel]);
     await sequelize.sync();
   });
 
@@ -47,7 +48,7 @@ describe("InvoiceFacade", () => {
     expect(output.id).toBeDefined();
     expect(output.name).toBe(input.name);
     expect(output.document).toBe(input.document);
-    expect(output.address.city).toBe(input.city);
+    expect(output.city).toBe(input.city);
     expect(output.total).toBe(100);
   });
 

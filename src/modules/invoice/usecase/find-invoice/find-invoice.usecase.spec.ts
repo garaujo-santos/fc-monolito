@@ -3,9 +3,10 @@ import Id from "../../../@shared/domain/value-object/id.value-object";
 import InvoiceModel from "../../repository/invoice.model";
 import FindInvoiceUseCase from "./find-invoice.usecase";
 import InvoiceRepository from "../../repository/invoice.repository";
-import Invoice from "../../domain/invoice";
-import Address from "../../domain/value-objects/address.value-object";
 import InvoiceItem from "../../domain/entities/invoice-item.entity";
+import Address from "../../../@shared/domain/value-object/address";
+import Invoice from "../../domain/entities/invoice.entity";
+import { InvoiceItemsModel } from "../../repository/invoice-items.model";
 
 describe("FindInvoiceUseCase", () => {
   let sequelize: Sequelize;
@@ -18,7 +19,7 @@ describe("FindInvoiceUseCase", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([InvoiceModel]);
+    await sequelize.addModels([InvoiceModel, InvoiceItemsModel]);
     await sequelize.sync();
   });
 

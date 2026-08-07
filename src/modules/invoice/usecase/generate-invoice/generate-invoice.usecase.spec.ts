@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import InvoiceModel from "../../repository/invoice.model";
 import GenerateInvoiceUseCase from "./generate-invoice.usecase";
 import InvoiceRepository from "../../repository/invoice.repository";
+import { InvoiceItemsModel } from "../../repository/invoice-items.model";
 
 describe("GenerateInvoiceUseCase", () => {
   let sequelize: Sequelize;
@@ -14,7 +15,7 @@ describe("GenerateInvoiceUseCase", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([InvoiceModel]);
+    await sequelize.addModels([InvoiceModel, InvoiceItemsModel]);
     await sequelize.sync();
   });
 
@@ -54,7 +55,7 @@ describe("GenerateInvoiceUseCase", () => {
     expect(output.id).toBeDefined();
     expect(output.name).toBe(input.name);
     expect(output.document).toBe(input.document);
-    expect(output.address.city).toBe(input.city);
+    expect(output.city).toBe(input.city);
     expect(output.items).toHaveLength(2);
     expect(output.total).toBe(150);
   });

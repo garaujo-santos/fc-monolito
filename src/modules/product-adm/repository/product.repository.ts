@@ -5,16 +5,25 @@ import { ProductModel } from "./product.model";
 
 export default class ProductRepository implements ProductGateway {
   async add(product: Product): Promise<void> {
-    await ProductModel.create({
-      id: product.id.id,
-      name: product.name,
-      description: product.description,
-      purchasePrice: product.purchasePrice,
-      stock: product.stock,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    try {
+      console.log('Creating product:', product);
+      await ProductModel.create({
+        id: product.id.id,
+        name: product.name,
+        description: product.description,
+        purchasePrice: product.purchasePrice,
+        salesPrice: product.salesPrice,
+        stock: product.stock,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
+    catch (error) {
+      console.error('Error creating product:', error);
+      throw new Error('Product not created');
+    }
   }
+
   async find(id: string): Promise<Product> {
     const product = await ProductModel.findOne({
       where: { id },
@@ -29,6 +38,7 @@ export default class ProductRepository implements ProductGateway {
       name: product.name,
       description: product.description,
       purchasePrice: product.purchasePrice,
+      salesPrice: product.salesPrice,
       stock: product.stock,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,

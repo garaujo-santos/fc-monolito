@@ -1,6 +1,8 @@
 import AggregateRoot from "../../@shared/domain/entity/aggregate-root.interface";
 import BaseEntity from "../../@shared/domain/entity/base.entity";
+import NotificationError from "../../@shared/domain/notification/notification.error";
 import Id from "../../@shared/domain/value-object/id.value-object";
+import PaymentValidatorFactory from "../factory/payment.validator.factory";
 
 type TransactionProps = {
   id?: Id;
@@ -17,17 +19,18 @@ export default class Transaction extends BaseEntity implements AggregateRoot {
   private _status: string;
 
   constructor(props: TransactionProps) {
-    super(props.id);
+    super(props.id, props.createdAt, props.updatedAt);
     this._amount = props.amount;
     this._orderId = props.orderId;
     this._status = props.status || "pending";
     this.validate();
+    if (this.notification.hasErrors()) {
+      throw new NotificationError(this.notification.getErrors());
+    }
   }
 
   validate(): void {
-    if (this._amount <= 0) {
-      throw new Error("Amount must be greater than 0");
-    }
+    PaymentValidatorFactory.create().validate(this)
   }
 
   approve(): void {

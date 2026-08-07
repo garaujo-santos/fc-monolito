@@ -1,12 +1,13 @@
 import { Sequelize } from "sequelize-typescript";
+import Address from "../../@shared/domain/value-object/address";
 import Id from "../../@shared/domain/value-object/id.value-object";
-import Invoice from "../domain/invoice";
+import InvoiceItem from "../domain/entities/invoice-item.entity";
+import Invoice from "../domain/entities/invoice.entity";
+import { InvoiceItemsModel } from "./invoice-items.model";
 import InvoiceModel from "./invoice.model";
 import InvoiceRepository from "./invoice.repository";
-import Address from "../domain/value-objects/address.value-object";
-import InvoiceItem from "../domain/entities/invoice-item.entity";
 
-describe("InvoiceRepository", () => {
+describe("InvoiceRepository test", () => {
   let sequelize: Sequelize;
 
   beforeEach(async () => {
@@ -17,7 +18,7 @@ describe("InvoiceRepository", () => {
       sync: { force: true },
     });
 
-    await sequelize.addModels([InvoiceModel]);
+    await sequelize.addModels([InvoiceModel, InvoiceItemsModel]);
     await sequelize.sync();
   });
 
@@ -25,75 +26,84 @@ describe("InvoiceRepository", () => {
     await sequelize.close();
   });
 
-  it("should create and save an invoice", async () => {
-    const repository = new InvoiceRepository();
-
-    const address = new Address({
-      street: "Test Street",
-      number: "123",
-      complement: "Apt 1",
-      city: "Test City",
-      state: "TS",
-      zipCode: "12345-678",
+  it("should generate a invoice", async () => {
+    const mockItem1 = new InvoiceItem({
+      id: new Id('1'),
+      name: "Product mock 1",
+      price: 100,
     });
 
-    const items = [
-      new InvoiceItem({
-        id: new Id("item1"),
-        name: "Item 1",
-        price: 100,
-      }),
-    ];
-
+    const mockItem2 = new InvoiceItem({
+      id: new Id('2'),
+      name: "Product mock 2",
+      price: 20,
+    });
     const invoice = new Invoice({
-      id: new Id("1"),
-      name: "Test Invoice",
+      id: new Id('1'),
+      name: "John Doe",
       document: "123456789",
-      address,
-      items,
+      address: new Address({
+        street: "Rua 123",
+        number: "99",
+        complement: "Casa Verde",
+        city: "Criciúma",
+        state: "SC",
+        zipCode: "88888-888"
+      }),
+      items: [mockItem1, mockItem2],
     });
 
-    const savedInvoice = await repository.save(invoice);
+    const repository = new InvoiceRepository();
+    await repository.save(invoice);
 
-    expect(savedInvoice.id).toBeDefined();
-    expect(savedInvoice.name).toBe("Test Invoice");
-    expect(savedInvoice.address.city).toBe("Test City");
+    const findInvoice = await InvoiceModel.findOne({ where: { id: invoice.id.id }, include: [InvoiceItemsModel] });
+
+    expect(findInvoice.id).toBe(invoice.id.id);
+    expect(findInvoice.name).toBe(invoice.name);
+    expect(findInvoice.document).toBe(invoice.document);
+    expect(findInvoice.items[0].id).toEqual(invoice.items[0].id.id);
+    expect(findInvoice.items[1].id).toEqual(invoice.items[1].id.id);
+    expect(findInvoice.street).toBe(invoice.address.street);
   });
 
-  it("should find an invoice by id", async () => {
-    const repository = new InvoiceRepository();
+  it("should find a invoice", async () => {
 
-    const address = new Address({
-      street: "Test Street",
-      number: "123",
-      complement: "Apt 1",
-      city: "Test City",
-      state: "TS",
-      zipCode: "12345-678",
+    const mockItem1 = new InvoiceItem({
+      id: new Id(),
+      name: "Product mock 1",
+      price: 100,
     });
 
-    const items = [
-      new InvoiceItem({
-        id: new Id("item1"),
-        name: "Item 1",
-        price: 100,
-      }),
-    ];
-
+    const mockItem2 = new InvoiceItem({
+      id: new Id(),
+      name: "Product mock 2",
+      price: 20,
+    });
     const invoice = new Invoice({
-      id: new Id("2"),
-      name: "Test Invoice",
+      id: new Id(),
+      name: "John Doe",
       document: "123456789",
-      address,
-      items,
+      address: new Address({
+        street: "Rua 123",
+        number: "99",
+        complement: "Casa Verde",
+        city: "Criciúma",
+        state: "SC",
+        zipCode: "88888-888"
+      }),
+      items: [mockItem1, mockItem2],
     });
 
-    const savedInvoice = await repository.save(invoice);
-    const foundInvoice = await repository.find(savedInvoice.id.id);
+    const repository = new InvoiceRepository();
+    await repository.save(invoice);
 
-    expect(foundInvoice.id.id).toBe(savedInvoice.id.id);
-    expect(foundInvoice.name).toBe("Test Invoice");
-    expect(foundInvoice.address.city).toBe("Test City");
-    expect(foundInvoice.items[0].name).toBe("Item 1");
+    const findInvoice = await repository.find(invoice.id.id);
+
+    expect(findInvoice.id.id).toBe(invoice.id.id);
+    expect(findInvoice.name).toBe(invoice.name);
+    expect(findInvoice.document).toBe(invoice.document);
+    expect(findInvoice.items[0].id).toEqual(invoice.items[0].id);
+    expect(findInvoice.items[1].id).toEqual(invoice.items[1].id);
+    expect(findInvoice.address.street).toBe(invoice.address.street);
   });
 });

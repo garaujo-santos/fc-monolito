@@ -1,7 +1,9 @@
 import AggregateRoot from "../../@shared/domain/entity/aggregate-root.interface"
 import BaseEntity from "../../@shared/domain/entity/base.entity"
+import NotificationError from "../../@shared/domain/notification/notification.error"
 import Address from "../../@shared/domain/value-object/address"
 import Id from "../../@shared/domain/value-object/id.value-object"
+import ClientValidatorFactory from "../factory/client.validator.factory"
 
 type ClientProps = {
   id?: Id
@@ -26,7 +28,17 @@ export default class Client extends BaseEntity implements AggregateRoot {
     this._email = props.email
     this._document = props.document
     this._address = props.address
+
+    this.validate();
+    if (this.notification.hasErrors()) {
+      throw new NotificationError(this.notification.getErrors());
+    }
   }
+
+  validate() {
+    ClientValidatorFactory.create().validate(this);
+  }
+
 
   get name(): string {
     return this._name

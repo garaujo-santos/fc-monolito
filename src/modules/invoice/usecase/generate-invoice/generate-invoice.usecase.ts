@@ -1,16 +1,18 @@
 import UseCaseInterface from "../../../@shared/usecase/use-case.interface";
-import Invoice from "../../domain/invoice";
+
 import InvoiceGateway from "../../gateway/invoice.gateway";
-import Address from "../../domain/value-objects/address.value-object";
+
 import InvoiceItem from "../../domain/entities/invoice-item.entity";
 import Id from "../../../@shared/domain/value-object/id.value-object";
 import {
   GenerateInvoiceUseCaseInputDto,
   GenerateInvoiceUseCaseOutputDto,
 } from "./generate-invoice.dto";
+import Address from "../../../@shared/domain/value-object/address";
+import Invoice from "../../domain/entities/invoice.entity";
 
 export default class GenerateInvoiceUseCase implements UseCaseInterface {
-  constructor(private invoiceRepository: InvoiceGateway) {}
+  constructor(private invoiceRepository: InvoiceGateway) { }
 
   async execute(
     input: GenerateInvoiceUseCaseInputDto
@@ -46,14 +48,12 @@ export default class GenerateInvoiceUseCase implements UseCaseInterface {
       id: persistedInvoice.id.id,
       name: persistedInvoice.name,
       document: persistedInvoice.document,
-      address: {
-        street: persistedInvoice.address.street,
-        number: persistedInvoice.address.number,
-        complement: persistedInvoice.address.complement,
-        city: persistedInvoice.address.city,
-        state: persistedInvoice.address.state,
-        zipCode: persistedInvoice.address.zipCode,
-      },
+      street: persistedInvoice.address.street,
+      number: persistedInvoice.address.number,
+      complement: persistedInvoice.address.complement,
+      city: persistedInvoice.address.city,
+      state: persistedInvoice.address.state,
+      zipCode: persistedInvoice.address.zipCode,
       items: persistedInvoice.items.map((item) => ({
         id: item.id.id,
         name: item.name,

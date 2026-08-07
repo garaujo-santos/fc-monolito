@@ -32,14 +32,14 @@ describe("Client Repository test", () => {
       name: "Lucian",
       email: "lucian@teste.com",
       document: "1234-5678",
-      address: new Address(
-        "Rua 123",
-        "99",
-        "Casa Verde",
-        "Criciúma",
-        "SC",
-        "88888-888"
-      )
+      address: new Address({
+        street: "Rua 123",
+        number: "99",
+        complement: "Casa Verde",
+        city: "Criciúma",
+        state: "SC",
+        zipCode: "88888-888"
+      })
       // address: "Rua 123",
     })
 
@@ -75,7 +75,7 @@ describe("Client Repository test", () => {
       complement: "Casa Verde",
       city: "Criciúma",
       state: "SC",
-      zipcode: "88888-888",      
+      zipcode: "88888-888",
       createdAt: new Date(),
       updatedAt: new Date()
     })
